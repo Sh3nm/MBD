@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Tiket Pesawat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Sistem Reservasi Tiket Penerbangan</h1>
+        <nav>
+            <button onclick="showSection('home')">Beranda</button>
+            <button onclick="showSection('login-register')">Login/Register</button>
+            <button onclick="showSection('search-flight')">Cari Penerbangan</button>
+            <button onclick="showSection('book-ticket')">Pesan Tiket</button>
+            <button onclick="showSection('my-tickets')">Tiket Saya</button>
+            <button onclick="showSection('admin-flight-management')">Kelola Penerbangan (Admin)</button>
+            <button onclick="logoutUser()" id="logoutBtn" style="display: none;">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="active">
+            <h2>Selamat Datang!</h2>
+            <p>Sistem reservasi tiket penerbangan ini ditujukan untuk mempermudah calon penumpang dalam mencari, memesan, dan membatalkan tiket penerbangan secara online. </p>
+        </section>
+
+        <section id="login-register" style="display:none;">
+            <h2>Login / Register</h2>
+            <div class="form-container">
+                <h3>Login</h3>
+                <form id="loginForm">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+            <div class="form-container">
+                <h3>Register</h3>
+                <form id="registerForm">
+                    <label for="registerName">Nama:</label>
+                    <input type="text" id="registerName" required>
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" required>
+                    <label for="registerPhone">Nomor Telepon:</label>
+                    <input type="tel" id="registerPhone" required>
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" required>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+            <p id="authMessage"></p>
+        </section>
+
+        <section id="search-flight" style="display:none;">
+            <h2>Cari Penerbangan</h2>
+            <form id="searchFlightForm">
+                <label for="departureCity">Kota Asal:</label>
+                <input type="text" id="departureCity">
+                <label for="arrivalCity">Kota Tujuan:</label>
+                <input type="text" id="arrivalCity">
+                <label for="departureDate">Tanggal Keberangkatan:</label>
+                <input type="date" id="departureDate">
+                <label for="flightClass">Kelas:</label>
+                <select id="flightClass">
+                    <option value="">Pilih Kelas</option>
+                    <option value="Economy">Economy</option>
+                    <option value="Business">Business</option>
+                    <option value="First Class">First Class</option>
+                    </select>
+                <label for="sortBy">Urutkan Berdasarkan:</label>
+                <select id="sortBy">
+                    <option value="">Tidak Diurutkan</option>
+                    <option value="cheapest">Termurah</option>
+                    <option value="shortest">Tercepat</option>
+                </select>
+                <button type="submit">Cari</button>
+            </form>
+            <div id="flightSearchResults">
+                <h3>Hasil Pencarian:</h3>
+                <table id="flightResultsTable">
+                    <thead>
+                        <tr>
+                            <th>Flight ID</th>
+                            <th>Waktu Berangkat</th>
+                            <th>Waktu Tiba</th>
+                            <th>Asal (IATA)</th>
+                            <th>Tujuan (IATA)</th>
+                            <th>Kota Asal</th>
+                            <th>Kota Tujuan</th>
+                            <th>Kelas</th>
+                            <th>Harga</th>
+                            <th>Durasi (menit)</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+                <p id="searchFlightMessage"></p>
+            </div>
+        </section>
+
+        <section id="book-ticket" style="display:none;">
+            <h2>Pesan Tiket</h2>
+            <form id="bookTicketForm">
+                <label for="bookFlightId">ID Penerbangan:</label>
+                <input type="number" id="bookFlightId" required>
+                <label for="bookSeatNumber">Nomor Kursi:</label>
+                <input type="text" id="bookSeatNumber" required>
+                <label for="bookPaymentMethod">Metode Pembayaran:</label>
+                <input type="text" id="bookPaymentMethod" required>
+                <button type="submit">Pesan Tiket</button>
+            </form>
+            <p id="bookTicketMessage"></p>
+            <div id="availableSeatsSection" style="display:none;">
+                <h3>Kursi Tersedia untuk Penerbangan <span id="currentFlightId"></span>:</h3>
+                <table id="availableSeatsTable">
+                    <thead>
+                        <tr>
+                            <th>Nomor Kursi</th>
+                            <th>Kelas</th>
+                            <th>Harga Total</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+                <p id="availableSeatsMessage"></p>
+            </div>
+        </section>
+
+        <section id="my-tickets" style="display:none;">
+            <h2>Tiket Saya</h2>
+            <button onclick="fetchMyTickets()">Refresh Tiket</button>
+            <table id="myTicketsTable">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Status Tiket</th>
+                        <th>Tanggal Pesan</th>
+                        <th>Nomor Kursi</th>
+                        <th>Kelas</th>
+                        <th>Nama Penumpang</th>
+                        <th>Waktu Berangkat</th>
+                        <th>Waktu Tiba</th>
+                        <th>Asal (IATA)</th>
+                        <th>Tujuan (IATA)</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            <p id="myTicketsMessage"></p>
+        </section>
+
+        <section id="admin-flight-management" style="display:none;">
+            <h2>Kelola Penerbangan (Admin)</h2>
+            <div class="form-container">
+                <h3>Tambah Penerbangan</h3>
+                <form id="addFlightForm">
+                    <label for="addDepartureAirport">Airport Asal (IATA):</label>
+                    <input type="text" id="addDepartureAirport" maxlength="3" required>
+                    <label for="addArrivalAirport">Airport Tujuan (IATA):</label>
+                    <input type="text" id="addArrivalAirport" maxlength="3" required>
+                    <label for="addDepartureTime">Waktu Keberangkatan:</label>
+                    <input type="datetime-local" id="addDepartureTime" required>
+                    <label for="addArrivalTime">Waktu Kedatangan:</label>
+                    <input type="datetime-local" id="addArrivalTime" required>
+                    <label for="addPrice">Harga Dasar:</label>
+                    <input type="number" id="addPrice" step="0.01" required>
+                    <label for="addAdminId">Admin ID:</label>
+                    <input type="number" id="addAdminId" required>
+                    <label for="addPlaneId">Plane ID:</label>
+                    <input type="number" id="addPlaneId" required>
+                    <button type="submit">Tambah Penerbangan</button>
+                </form>
+                <p id="addFlightMessage"></p>
+            </div>
+            </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
